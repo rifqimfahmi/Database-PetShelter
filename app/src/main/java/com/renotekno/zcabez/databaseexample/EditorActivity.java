@@ -12,7 +12,6 @@ public class EditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
-
     }
 
     @Override
@@ -23,7 +22,7 @@ public class EditorActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.finishAddButton) {
+        if (item.getItemId() == R.id.finishAddBtn) {
             Toast.makeText(this, "New pet added", Toast.LENGTH_SHORT).show();
             finish();
         }

@@ -3,7 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
             android:icon="@drawable/ic_done"
-            android:id="@+id/finishAddButton"
+            android:id="@+id/finishAddBtn"
             app:showAsAction="always"
             android:title="Finish"/>
+
+    <item
+        android:title="Delete"
+        android:id="@+id/deletePetBtn"
+        />
 </menu>

@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
         <item
-                android:title="Action 1"
+                android:title="Indert dummy data"
                 android:id="@+id/action_menu_1"/>
         <item
-                android:title="Action 2"
+                android:title="Delete all pets"
                 android:id="@+id/action_menu_2"/>
     </group>
 </menu>

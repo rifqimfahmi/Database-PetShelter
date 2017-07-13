@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">DatabaseExample</string>
+
+    //Gender value
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
     <string name="gender_unknown">Unknown</string>
+
+    //Labels on editor
+    <string name="name_label">Name</string>
+    <string name="overview_label">Overview</string>
+    <string name="breed_label">Breed</string>
+    <string name="gender_label">Gender</string>
+    <string name="weight_label">Weight</string>
+
+    // Weight scale
+    <string name="weight_unit_kg">Kg</string>
 
 </resources>
