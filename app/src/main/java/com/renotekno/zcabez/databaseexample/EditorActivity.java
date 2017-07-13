@@ -6,6 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.renotekno.zcabez.databaseexample.data.PetContract;
+
 public class EditorActivity extends AppCompatActivity {
 
     @Override
