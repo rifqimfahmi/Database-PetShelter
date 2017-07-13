@@ -32,4 +32,20 @@
         <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif-light</item>
     </style>
 
+    // Spinner
+    <style name="spinnerEditor" >
+        <item name="android:layout_width" >wrap_content</item>
+        <item name="android:layout_height" >wrap_content</item>
+        <item name="android:spinnerMode" >dropdown</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+    </style>
+
+    // Unit weight
+    <style name="weightUnit" >
+        <item name="android:layout_width" >wrap_content</item>
+        <item name="android:layout_height" >wrap_content</item>
+        <item name="android:layout_alignParentRight" >true</item>
+        <item name="android:layout_centerVertical" >true</item>
+        <item name="android:textAppearance" >?android:textAppearanceSmall</item>
+    </style>
 </resources>

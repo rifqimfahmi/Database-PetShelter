@@ -16,7 +16,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".EditorActivity"
-                  android:theme="@style/AppTheme.Editor"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.Editor"
                   android:label="Add New Pet"
         >
         </activity>

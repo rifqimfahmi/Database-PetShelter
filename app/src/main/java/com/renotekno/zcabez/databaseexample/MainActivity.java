@@ -7,11 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addNewPetFAB;
+    private TextView testDbConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
     }
 
     @Override
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        testDbConnection = (TextView) findViewById(R.id.database_connection);
         addNewPetFAB = (FloatingActionButton) findViewById(R.id.addNewPetFAB);
     }
 }
