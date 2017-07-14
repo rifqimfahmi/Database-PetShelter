@@ -3,9 +3,9 @@
     <group>
         <item
                 android:title="Indert dummy data"
-                android:id="@+id/action_menu_1"/>
+                android:id="@+id/insert_dummy_data"/>
         <item
                 android:title="Delete all pets"
-                android:id="@+id/action_menu_2"/>
+                android:id="@+id/delete_all_pet"/>
     </group>
 </menu>
