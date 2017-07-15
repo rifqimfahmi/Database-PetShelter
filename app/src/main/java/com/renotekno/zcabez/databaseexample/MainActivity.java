@@ -3,33 +3,34 @@ package com.renotekno.zcabez.databaseexample;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
+import com.renotekno.zcabez.databaseexample.adapter.PetListAdapter;
+import com.renotekno.zcabez.databaseexample.data.DBConnection;
 import com.renotekno.zcabez.databaseexample.data.PetContract.PetEntry;
-import com.renotekno.zcabez.databaseexample.data.PetDbHelper;
+import com.renotekno.zcabez.databaseexample.model.Pet;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addNewPetFAB;
-    private TextView testDbConnection;
-    private PetDbHelper petDbHelper;
-    private SQLiteDatabase writeAbleDB = null;
-    private SQLiteDatabase readAbleDB = null;
+    private ListView petListView;
+    List<Pet> pets;
+    private Object petDataFromDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-
-        petDbHelper = new PetDbHelper(this);
 
         addNewPetFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,19 +40,38 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        pets = new ArrayList<>();
+        getPetDataFromDB();
 
-//        SQLiteDatabase petDB = petDbHelper.getReadableDatabase();
-         checkDatabaseConnection();
+        PetListAdapter petListAdapter = new PetListAdapter(this, pets);
+        petListView.setAdapter(petListAdapter);
+
+//        displayDummyDataFromDB();
+//        checkDatabaseConnection();
     }
 
-    private void checkDatabaseConnection() {
-        Cursor c = getReadAbleDB().rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
-        try {
-            testDbConnection.setText( "Row count on database: "+ c.getCount());
-        } finally {
-            c.close();
-        }
-    }
+//    private void displayDummyDataFromDB() {
+//        Cursor c = DBConnection.getReadAbleDB(this).query(PetEntry.TABLE_NAME, null, null, null, null, null, null);
+//        String name = "";
+//        if (c.moveToLast()) {
+//            name = "Name = " + c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_NAME)) + "\nWeight = " + c.getInt(c.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT));
+//        }
+//
+//        try {
+//            databaseDummy.setText(name);
+//        } finally {
+//            c.close();
+//        }
+//    }
+
+//    private void checkDatabaseConnection() {
+//        Cursor c = DBConnection.getReadAbleDB(this).rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
+//        try {
+//            testDbConnection.setText("Row count on database: " + c.getCount());
+//        } finally {
+//            c.close();
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,35 +91,41 @@ public class MainActivity extends AppCompatActivity {
                 contentValues.put(PetEntry.COLUMN_PET_GENDER, 1);
                 contentValues.put(PetEntry.COLUMN_PET_WEIGHT, 7);
 
-                long id = getWriteAbleDB().insert(PetEntry.TABLE_NAME, null, contentValues);
-                checkDatabaseConnection();
+                long id = DBConnection.getWriteAbleDB(this).insert(PetEntry.TABLE_NAME, null, contentValues);
 
                 break;
             case R.id.delete_all_pet:
                 Toast.makeText(this, "Action menu 2 clicked", Toast.LENGTH_SHORT).show();
+
+
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private SQLiteDatabase getWriteAbleDB() {
-        if (writeAbleDB != null && writeAbleDB.isOpen()) {
-            return writeAbleDB;
-        }
-        writeAbleDB = petDbHelper.getWritableDatabase();
-        return writeAbleDB;
-    }
-
-    private SQLiteDatabase getReadAbleDB() {
-        if (readAbleDB != null && readAbleDB.isOpen()) {
-            return readAbleDB;
-        }
-        readAbleDB = petDbHelper.getReadableDatabase();
-        return readAbleDB;
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     private void initView() {
-        testDbConnection = (TextView) findViewById(R.id.database_connection);
         addNewPetFAB = (FloatingActionButton) findViewById(R.id.addNewPetFAB);
+        petListView = (ListView) findViewById(R.id.pet_list_view);
+    }
+
+    public void getPetDataFromDB() {
+        Cursor c = DBConnection.getReadAbleDB(this).query(PetEntry.TABLE_NAME, null, null, null, null, null, null);
+        while (c.moveToNext()) {
+            Pet pet = new Pet(
+                    c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_NAME)),
+                    c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_BREED)),
+                    c.getInt(c.getColumnIndex(PetEntry.COLUMN_PET_GENDER)),
+                    c.getInt(c.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT))
+            );
+
+            pets.add(pet);
+        }
+
+        c.close();
     }
 }
