@@ -9,9 +9,10 @@
         android:clipToPadding="false"
         tools:context="com.renotekno.zcabez.databaseexample.MainActivity">
 
-    <ListView android:layout_width="match_parent"
-              android:id="@+id/pet_list_view"
-              android:layout_height="match_parent"/>
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:id="@+id/petRecyclerView"
+        android:layout_height="match_parent" />
 
     <android.support.design.widget.FloatingActionButton
             android:layout_alignParentBottom="true"

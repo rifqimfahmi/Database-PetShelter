@@ -6,12 +6,15 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.renotekno.zcabez.databaseexample.adapter.PetListAdapter;
+
+import com.renotekno.zcabez.databaseexample.adapter.PetRVAdapter;
 import com.renotekno.zcabez.databaseexample.data.DBConnection;
 import com.renotekno.zcabez.databaseexample.data.PetContract.PetEntry;
 import com.renotekno.zcabez.databaseexample.model.Pet;
@@ -22,9 +25,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addNewPetFAB;
-    private ListView petListView;
-    List<Pet> pets;
-    private Object petDataFromDB;
+    private List<Pet> pets;
+    private LinearLayoutManager linearLayoutManager;
+    private RecyclerView petRV;
+    private PetRVAdapter petRVAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,35 +47,13 @@ public class MainActivity extends AppCompatActivity {
         pets = new ArrayList<>();
         getPetDataFromDB();
 
-        PetListAdapter petListAdapter = new PetListAdapter(this, pets);
-        petListView.setAdapter(petListAdapter);
+        petRVAdapter = new PetRVAdapter(pets);
+        linearLayoutManager = new LinearLayoutManager(this);
+        petRV.setHasFixedSize(true);
+        petRV.setLayoutManager(linearLayoutManager);
+        petRV.setAdapter(petRVAdapter);
 
-//        displayDummyDataFromDB();
-//        checkDatabaseConnection();
     }
-
-//    private void displayDummyDataFromDB() {
-//        Cursor c = DBConnection.getReadAbleDB(this).query(PetEntry.TABLE_NAME, null, null, null, null, null, null);
-//        String name = "";
-//        if (c.moveToLast()) {
-//            name = "Name = " + c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_NAME)) + "\nWeight = " + c.getInt(c.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT));
-//        }
-//
-//        try {
-//            databaseDummy.setText(name);
-//        } finally {
-//            c.close();
-//        }
-//    }
-
-//    private void checkDatabaseConnection() {
-//        Cursor c = DBConnection.getReadAbleDB(this).rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
-//        try {
-//            testDbConnection.setText("Row count on database: " + c.getCount());
-//        } finally {
-//            c.close();
-//        }
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,15 +87,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        getPetDataFromDB();
         super.onStart();
     }
 
     private void initView() {
         addNewPetFAB = (FloatingActionButton) findViewById(R.id.addNewPetFAB);
-        petListView = (ListView) findViewById(R.id.pet_list_view);
+        petRV = (RecyclerView) findViewById(R.id.petRecyclerView);
     }
 
     public void getPetDataFromDB() {
+        pets.clear();
         Cursor c = DBConnection.getReadAbleDB(this).query(PetEntry.TABLE_NAME, null, null, null, null, null, null);
         while (c.moveToNext()) {
             Pet pet = new Pet(
@@ -127,5 +111,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         c.close();
+
+        if (petRVAdapter != null) {
+            petRVAdapter.notifyDataSetChanged();
+        }
+
     }
 }
