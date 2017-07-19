@@ -1,5 +1,6 @@
 package com.renotekno.zcabez.databaseexample.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -10,9 +11,14 @@ public final class PetContract {
 
     private PetContract () {}
 
+    public static final String CONTENT_AUTHORITY = "com.renotekno.zcabez.shelter";
+
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 
     public final static class PetEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PetEntry.TABLE_NAME);
 
         public static final String SQL_CREATE_PETS_TABLE = "CREATE TABLE " + PetEntry.TABLE_NAME + "(" +
                 PetEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +

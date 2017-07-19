@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         pets = new ArrayList<>();
         getPetDataFromDB();
 
@@ -98,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void getPetDataFromDB() {
         pets.clear();
-        Cursor c = DBConnection.getReadAbleDB(this).query(PetEntry.TABLE_NAME, null, null, null, null, null, null);
-        while (c.moveToNext()) {
+        Cursor c = getContentResolver().query(PetEntry.CONTENT_URI, null, null, null, null);
+        while (c != null && c.moveToNext()) {
             Pet pet = new Pet(
                     c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_NAME)),
                     c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_BREED)),
@@ -110,7 +111,9 @@ public class MainActivity extends AppCompatActivity {
             pets.add(pet);
         }
 
-        c.close();
+        if (c != null) {
+            c.close();
+        }
 
         if (petRVAdapter != null) {
             petRVAdapter.notifyDataSetChanged();
