@@ -1,6 +1,7 @@
 package com.renotekno.zcabez.databaseexample;
 
 import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -67,9 +68,11 @@ public class EditorActivity extends AppCompatActivity {
                 }
                 contentValues.put(PetContract.PetEntry.COLUMN_PET_GENDER, petGender);
 
-                DBConnection.getWriteAbleDB(this).insert(PetContract.PetEntry.TABLE_NAME, null, contentValues);
+                Uri uri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, contentValues);
 
-                finish();
+                if (uri != null) {
+                    finish();
+                }
             } else {
                 Toast.makeText(this, "Please fill in the blank!", Toast.LENGTH_SHORT).show();
             }

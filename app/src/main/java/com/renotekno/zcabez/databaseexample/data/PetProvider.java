@@ -19,7 +19,6 @@ public class PetProvider extends ContentProvider {
 
     public static final int PETS = 100;
     public static final int PETS_ID = 101;
-    private SQLiteDatabase db;
 
     private static UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -38,17 +37,19 @@ public class PetProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor cursor;
 
-        db = DBConnection.getWriteAbleDB(getContext());
-
         int match = uriMatcher.match(uri);
         switch (match) {
             case PETS:
-                cursor = db.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor = DBConnection
+                        .getWriteAbleDB(getContext())
+                        .query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case PETS_ID:
                 selection = PetEntry._ID + " = ?";
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
-                cursor = db.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor = DBConnection
+                        .getWriteAbleDB(getContext())
+                        .query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid parameter query");
@@ -59,19 +60,47 @@ public class PetProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public String getType(@NonNull Uri uri) {
-        return null;
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        final int match = uriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return insertData(uri, values);
+            default:
+                throw new IllegalArgumentException("Invalid uri argument");
+        }
     }
 
-    @Nullable
-    @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+    private Uri insertData(Uri uri, ContentValues values) {
+
+        // TODO : Perform sanity check
+        final String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
+        final String breed = values.getAsString(PetEntry.COLUMN_PET_BREED);
+        final int gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
+        final int weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
+
+        long id = DBConnection
+                .getWriteAbleDB(getContext())
+                .insert(PetEntry.TABLE_NAME, null, values);
+
+        if (id == -1){
+            return null;
+        }
+
+        return ContentUris.withAppendedId(uri, id);
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+
+        final int match = uriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return DBConnection
+                        .getWriteAbleDB(getContext())
+                        .delete(PetEntry.TABLE_NAME, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Invalid uri argument");
+        }
     }
 
     @Override
@@ -79,4 +108,18 @@ public class PetProvider extends ContentProvider {
         return 0;
     }
 
+    @Nullable
+    @Override
+    public String getType(@NonNull Uri uri) {
+        final int match = uriMatcher.match(uri);
+
+        switch (match) {
+            case PETS:
+                return PetEntry.CONTENT_FULL_TYPE;
+            case PETS_ID:
+                return PetEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalArgumentException("Invalid getType uri argument");
+        }
+    }
 }

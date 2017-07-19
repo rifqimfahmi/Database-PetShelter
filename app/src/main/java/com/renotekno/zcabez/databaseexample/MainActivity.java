@@ -3,6 +3,7 @@ package com.renotekno.zcabez.databaseexample;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         petRV.setHasFixedSize(true);
         petRV.setLayoutManager(linearLayoutManager);
         petRV.setAdapter(petRVAdapter);
-
     }
 
     @Override
@@ -74,13 +74,22 @@ public class MainActivity extends AppCompatActivity {
                 contentValues.put(PetEntry.COLUMN_PET_GENDER, 1);
                 contentValues.put(PetEntry.COLUMN_PET_WEIGHT, 7);
 
-                long id = DBConnection.getWriteAbleDB(this).insert(PetEntry.TABLE_NAME, null, contentValues);
+                Uri uri = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
+                if (uri != null){
+                    int validPosition = pets.size() > 1 ? 1 : 0;
+                    pets.add(validPosition, new Pet("Toto", "Terrier", 1, 7));
+                    petRVAdapter.notifyItemInserted(validPosition);
+                    Toast.makeText(this, "Dummy pet data inserted", Toast.LENGTH_SHORT).show();
+                }
 
                 break;
             case R.id.delete_all_pet:
-                Toast.makeText(this, "Action menu 2 clicked", Toast.LENGTH_SHORT).show();
-
-
+                int totalRowDeleted = getContentResolver().delete(PetEntry.CONTENT_URI, null, null);
+                if (totalRowDeleted > 0) {
+                    pets.clear();
+                    petRVAdapter.notifyDataSetChanged();
+                    Toast.makeText(this, "All pet data deleted", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
