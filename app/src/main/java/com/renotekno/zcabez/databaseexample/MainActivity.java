@@ -1,41 +1,45 @@
 package com.renotekno.zcabez.databaseexample;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.renotekno.zcabez.databaseexample.adapter.PetRVAdapter;
-import com.renotekno.zcabez.databaseexample.data.DBConnection;
+import com.renotekno.zcabez.databaseexample.adapter.PetCursorAdapter;
 import com.renotekno.zcabez.databaseexample.data.PetContract.PetEntry;
 import com.renotekno.zcabez.databaseexample.model.Pet;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private FloatingActionButton addNewPetFAB;
     private List<Pet> pets;
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView petRV;
-    private PetRVAdapter petRVAdapter;
+    private ListView listView;
+    private PetCursorAdapter petCursorAdapter;
+    private RelativeLayout emptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+
+        listView.setEmptyView(emptyView);
 
         addNewPetFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,13 +51,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         pets = new ArrayList<>();
-        getPetDataFromDB();
 
-        petRVAdapter = new PetRVAdapter(pets);
-        linearLayoutManager = new LinearLayoutManager(this);
-        petRV.setHasFixedSize(true);
-        petRV.setLayoutManager(linearLayoutManager);
-        petRV.setAdapter(petRVAdapter);
+        petCursorAdapter = new PetCursorAdapter(this, null, true);
+        listView.setAdapter(petCursorAdapter);
+
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -75,10 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 contentValues.put(PetEntry.COLUMN_PET_WEIGHT, 7);
 
                 Uri uri = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
-                if (uri != null){
-                    int validPosition = pets.size() > 1 ? 1 : 0;
-                    pets.add(validPosition, new Pet("Toto", "Terrier", 1, 7));
-                    petRVAdapter.notifyItemInserted(validPosition);
+                if (uri != null) {
                     Toast.makeText(this, "Dummy pet data inserted", Toast.LENGTH_SHORT).show();
                 }
 
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 int totalRowDeleted = getContentResolver().delete(PetEntry.CONTENT_URI, null, null);
                 if (totalRowDeleted > 0) {
                     pets.clear();
-                    petRVAdapter.notifyDataSetChanged();
+
                     Toast.makeText(this, "All pet data deleted", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -97,36 +96,45 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        getPetDataFromDB();
         super.onStart();
     }
 
     private void initView() {
         addNewPetFAB = (FloatingActionButton) findViewById(R.id.addNewPetFAB);
-        petRV = (RecyclerView) findViewById(R.id.petRecyclerView);
+//        petRV = (RecyclerView) findViewById(R.id.petRecyclerView);
+        listView = (ListView) findViewById(R.id.listView);
+        emptyView = (RelativeLayout) findViewById(R.id.emptyView);
+
     }
 
-    public void getPetDataFromDB() {
-        pets.clear();
-        Cursor c = getContentResolver().query(PetEntry.CONTENT_URI, null, null, null, null);
-        while (c != null && c.moveToNext()) {
-            Pet pet = new Pet(
-                    c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_NAME)),
-                    c.getString(c.getColumnIndex(PetEntry.COLUMN_PET_BREED)),
-                    c.getInt(c.getColumnIndex(PetEntry.COLUMN_PET_GENDER)),
-                    c.getInt(c.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT))
-            );
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d("LOADER_WAY", "onCreateLoader");
+        String[] projection = {
+                PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+        };
 
-            pets.add(pet);
-        }
+        return new CursorLoader(
+                this,
+                PetEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+        );
+    }
 
-        if (c != null) {
-            c.close();
-        }
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d("LOADER_WAY", "onLoadFinished");
+        petCursorAdapter.swapCursor(data);
+    }
 
-        if (petRVAdapter != null) {
-            petRVAdapter.notifyDataSetChanged();
-        }
-
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d("LOADER_WAY", "onLoaderReset");
+        petCursorAdapter.swapCursor(null);
     }
 }

@@ -9,9 +9,9 @@
         android:clipToPadding="false"
         tools:context="com.renotekno.zcabez.databaseexample.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
         android:layout_width="match_parent"
-        android:id="@+id/petRecyclerView"
+        android:id="@+id/listView"
         android:layout_height="match_parent" />
 
     <android.support.design.widget.FloatingActionButton
@@ -25,4 +25,36 @@
             android:src="@drawable/ic_add_pet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/emptyView"
+                    android:layout_alignParentLeft="true">
+        <ImageView android:layout_width="wrap_content"
+                   android:src="@drawable/ic_empty_shelter"
+                   android:layout_centerHorizontal="true"
+                   android:layout_above="@+id/lonelyText"
+                   android:layout_height="wrap_content"/>
+
+        <TextView android:layout_width="wrap_content"
+                  android:id="@+id/lonelyText"
+                  android:text="It's a bit lonely here..."
+                  android:textAppearance="?android:textAppearanceMedium"
+                  android:fontFamily="sans-serif-medium"
+                  android:paddingTop="16dp"
+                  android:paddingBottom="8dp"
+                  android:layout_centerVertical="true"
+                  android:layout_centerHorizontal="true"
+                  android:textAlignment="center"
+                  android:layout_height="wrap_content" tools:targetApi="jelly_bean"/>
+
+        <TextView android:layout_width="wrap_content"
+                  android:text="Get started by adding pet"
+                  android:textAlignment="center"
+                  android:layout_centerHorizontal="true"
+                  android:layout_below="@+id/lonelyText"
+                  android:textAppearance="?android:textAppearanceSmall"
+                  android:fontFamily="sans-serif"
+                  android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
 </RelativeLayout>

@@ -55,6 +55,7 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("Invalid parameter query");
         }
 
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -86,6 +87,7 @@ public class PetProvider extends ContentProvider {
             return null;
         }
 
+        getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, id);
     }
 
@@ -95,12 +97,17 @@ public class PetProvider extends ContentProvider {
         final int match = uriMatcher.match(uri);
         switch (match) {
             case PETS:
-                return DBConnection
+                int totalDataDeleted = DBConnection
                         .getWriteAbleDB(getContext())
                         .delete(PetEntry.TABLE_NAME, selection, selectionArgs);
+                if (totalDataDeleted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+                return totalDataDeleted;
             default:
                 throw new IllegalArgumentException("Invalid uri argument");
         }
+
     }
 
     @Override
