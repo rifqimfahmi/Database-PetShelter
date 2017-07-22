@@ -5,9 +5,13 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -24,6 +28,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText editPetWeight;
     private ArrayList<EditText> editTexts = new ArrayList<>();
     private Uri mUriToEdit;
+
+    private boolean isEdited = false;
+
+    private View.OnTouchListener touchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            isEdited = true;
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +59,27 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         editTexts.add(editPetName);
         editTexts.add(editPetWeight);
 
+        editPetName.setOnTouchListener(touchListener);
+        editPetBreed.setOnTouchListener(touchListener);
+        editPetWeight.setOnTouchListener(touchListener);
+        spinnerGender.setOnTouchListener(touchListener);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!isEdited) {
+            super.onBackPressed();
+            return;
+        }
+
+        DialogInterface.OnClickListener discardListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        };
+
+        showUnsavedChangesDialog(discardListener);
     }
 
     @Override
@@ -71,10 +106,25 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         switch (itemID) {
             case R.id.finishAddBtn:
                 savePet();
-                break;
+                return true;
             case R.id.deletePetBtn:
                 deletePet();
-                break;
+                return true;
+            case android.R.id.home:
+                if (!isEdited) {
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    return true;
+                }
+
+                DialogInterface.OnClickListener discardListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    }
+                };
+
+                showUnsavedChangesDialog(discardListener);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -111,6 +161,27 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         editPetWeight.setText("");
         editPetName.setText("");
         spinnerGender.setSelection(0); // Select "Unknown" gender
+    }
+
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Discard Your changes and quit editing?");
+        builder.setPositiveButton("DISCARD", discardButtonClickListener);
+        builder.setNegativeButton("KEEP EDITING", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     private void deletePet() {
