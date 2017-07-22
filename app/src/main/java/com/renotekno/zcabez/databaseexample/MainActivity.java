@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         petCursorAdapter = new PetCursorAdapter(this, null, true);
         listView.setAdapter(petCursorAdapter);
+        listView.setOnItemClickListener(petCursorAdapter);
 
         getLoaderManager().initLoader(0, null, this);
     }

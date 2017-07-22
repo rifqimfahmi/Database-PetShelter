@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.text.TextUtils;
 import com.renotekno.zcabez.databaseexample.data.PetContract.PetEntry;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -104,6 +105,17 @@ public class PetProvider extends ContentProvider {
                     getContext().getContentResolver().notifyChange(uri, null);
                 }
                 return totalDataDeleted;
+
+            case PETS_ID:
+                long petID = ContentUris.parseId(uri);
+                String where = PetEntry._ID + " = ?";
+                String[] selections = new String[] {Long.toString(petID)};
+
+                int rowDeleted = DBConnection.getWriteAbleDB(getContext()).delete(PetEntry.TABLE_NAME, where, selections);
+
+                getContext().getContentResolver().notifyChange(uri, null);
+
+                return rowDeleted;
             default:
                 throw new IllegalArgumentException("Invalid uri argument");
         }
@@ -112,7 +124,22 @@ public class PetProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+
+        int match = uriMatcher.match(uri);
+        switch (match) {
+            case PETS_ID:
+                long petID = ContentUris.parseId(uri);
+                String where = PetEntry._ID + " = ?";
+                String[] selections = new String[] {Long.toString(petID)};
+
+                int rowUpdated = DBConnection.getWriteAbleDB(getContext()).update(PetEntry.TABLE_NAME, values, where, selections);
+
+                getContext().getContentResolver().notifyChange(uri, null);
+
+                return rowUpdated;
+            default:
+                throw new IllegalArgumentException("Invalid Arguments ");
+        }
     }
 
     @Nullable
